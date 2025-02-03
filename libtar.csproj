@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <LangVersion>preview</LangVersion>
-    <TargetFrameworks>net462;net48;net481;net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net462;net472;net48;net481;net8.0;net9.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>libtar</PackageId>
-    <Version>1.2.4</Version>
+    <Version>1.2.5</Version>
     <PackageVersion>$(Version)</PackageVersion>
     <Authors>lalaki</Authors>
     <Company>$(Authors)</Company>
     <Description>libtar is a lightweight C# library for extracting TAR archives. It provides a simple API to archive or extract all files from TAR files.</Description>
-    <PackageReleaseNotes>v1.2.4 libtar - release.</PackageReleaseNotes>
+    <PackageReleaseNotes>v1.2.5 libtar - release.</PackageReleaseNotes>
     <Copyright>Copyright (C) 2025 lalaki.cn</Copyright>
     <Product>libtar</Product>
     <PackageIcon>Icon.png</PackageIcon>
@@ -22,11 +22,19 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
-    <WarningLevel>8</WarningLevel>
+    <WarningLevel>9999</WarningLevel>
     <NoWin32Manifest>true</NoWin32Manifest>
-    <NoWarn>SYSLIB1054;IDE0130;</NoWarn>
+    <NoWarn>SYSLIB1054;IDE0130;SA1633;SA1200;SA1600;SA0001;CA1724;</NoWarn>
+    <AnalysisLevel>latest-all</AnalysisLevel>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NuGetAuditMode>all</NuGetAuditMode>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
+  <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+  <PrivateAssets>all</PrivateAssets>
+  <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+</PackageReference>
     <Compile Remove="nupkgs\**" />
     <EmbeddedResource Remove="nupkgs\**" />
     <None Remove="nupkgs\**" />

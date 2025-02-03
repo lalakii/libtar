@@ -33,23 +33,29 @@ namespace CN.Lalaki.Archive
                 throw new IOException("Input directory cannot be null or empty.");
             }
 
-            if (!ts.CanWrite)
+            if (ts?.CanWrite != true)
             {
                 throw new IOException("Unable to write stream.");
             }
 
-            var dirs = Directory.GetFileSystemEntries(inputDir, "*", SearchOption.AllDirectories);
-            var fullPath = Path.GetDirectoryName(inputDir);
-            var data = new byte[BlockSize];
-            foreach (var child in dirs)
+            string[] dirs = Directory.GetFileSystemEntries(inputDir, "*", SearchOption.AllDirectories);
+            string? fullPath = $"{Path.GetDirectoryName(inputDir)}";
+            byte[] data = new byte[BlockSize];
+            foreach (string child in dirs)
             {
                 for (int i = 0; i < BlockSize; i++)
                 {
                     data[i] = 0;
                 }
 
-                var path = child.Replace($"{fullPath}", string.Empty).Replace('\\', '/').TrimStart('/');
-                var attrs = File.GetAttributes(child);
+                int start = child.IndexOf(fullPath, StringComparison.OrdinalIgnoreCase);
+                if (start == -1)
+                {
+                    continue;
+                }
+
+                string path = child.Remove(start, fullPath.Length).Replace('\\', '/').TrimStart('/');
+                FileAttributes attrs = File.GetAttributes(child);
                 if (attrs.HasFlag(FileAttributes.ReparsePoint))
                 {
                     data[156] = (int)TypeFlag.SYMTYPE;
@@ -64,7 +70,7 @@ namespace CN.Lalaki.Archive
                     data[156] = (int)TypeFlag.REGTYPE;
                 }
 
-                var pathBytes = UTF8.GetBytes(path);
+                byte[] pathBytes = UTF8.GetBytes(path);
                 if (pathBytes.Length > 100)
                 {
                     int index = Array.FindLastIndex(pathBytes, 100, 100, (s) => s == '/');
@@ -115,7 +121,7 @@ namespace CN.Lalaki.Archive
                 {
                     fs.CopyTo(ts);
                     fs.Dispose();
-                    var end = BlockSize - ts.Position & 511L;
+                    long end = (BlockSize - ts.Position) & 511L;
                     for (uint i = 0U; i < end; i++)
                     {
                         ts.WriteByte(0);
@@ -129,7 +135,7 @@ namespace CN.Lalaki.Archive
 
         public static void ExtractAll(Stream ts, string outDir, bool mOverride)
         {
-            if (!ts.CanRead)
+            if (ts?.CanRead != true)
             {
                 throw new IOException("Unable to read stream.");
             }
@@ -140,26 +146,29 @@ namespace CN.Lalaki.Archive
             }
 
             Stream? fs = null;
-            if (ts is not GZipStream)
+            GZipStream? gz = null;
+            if (ts is GZipStream gz0)
             {
-                var pos = ts.Position;
-                if (ts.ReadByte() == 0x1F && ts.ReadByte() == 0x8B)
+                gz = gz0;
+            }
+            else
+            {
+                long pos = ts.Position;
+                int b0 = ts.ReadByte();
+                int b1 = ts.ReadByte();
+                if (b0 == 0x1F && b1 == 0x8B)
                 {
-                    fs = new GZipStream(ts, CompressionMode.Decompress);
+                    gz = new(ts, CompressionMode.Decompress);
                 }
 
                 ts.Position = pos;
             }
-            else
-            {
-                fs = ts;
-            }
 
-            if (fs is GZipStream gz)
+            if (gz != null)
             {
-                ts = fs = File.Create(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
                 using (gz)
                 {
+                    ts = fs = File.Create(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
                     gz.CopyTo(fs);
                     ts.Position = 0L;
                 }
@@ -167,10 +176,10 @@ namespace CN.Lalaki.Archive
 
             if (!Directory.Exists(outDir))
             {
-                Directory.CreateDirectory(outDir);
+                Directory.CreateDirectory(outDir).Refresh();
             }
 
-            var buf = new byte[BufSize];
+            byte[] buf = new byte[BufSize];
             while (true)
             {
                 int bytesRead = ts.Read(buf, 0, 100);
@@ -179,7 +188,7 @@ namespace CN.Lalaki.Archive
                     break;
                 }
 
-                var fileName = UTF8.GetString(buf, 0, 100).TrimEnd('\0');
+                string fileName = UTF8.GetString(buf, 0, 100).TrimEnd('\0');
                 if (string.IsNullOrWhiteSpace(fileName))
                 {
                     break;
@@ -191,7 +200,7 @@ namespace CN.Lalaki.Archive
                     break;
                 }
 
-                var cksum = ASCII.GetString(buf, 148, 8).Trim().TrimEnd('\0');
+                uint cksum = Convert.ToUInt32(ASCII.GetString(buf, 148, 8).Trim().TrimEnd('\0'), 8);
                 uint vcksum = 256U;
                 for (uint i = 0U; i < 148U; i++)
                 {
@@ -203,38 +212,38 @@ namespace CN.Lalaki.Archive
                     vcksum += buf[i];
                 }
 
-                if (!cksum.Contains(Convert.ToString(vcksum, 8)))
+                if (cksum != vcksum)
                 {
                     ReleaseStreams(ts, fs);
-                    throw new IOException(string.Format("Checksum mismatch.(c0:{0} c1:{1})", cksum, vcksum));
+                    throw new IOException($"Checksum mismatch.(c0:{cksum} c1:{vcksum})");
                 }
 
                 ts.Position += 12L;
-                var size = ASCII.GetString(buf, 124, 12).TrimEnd('\0');
-                var fileSize = 0L;
+                string size = ASCII.GetString(buf, 124, 12).TrimEnd('\0');
+                long fileSize = 0L;
                 if (size.Length > 0)
                 {
                     fileSize = Convert.ToInt64(size, 8);
                 }
 
-                var type = (TypeFlag)buf[156];
-                var prefix = UTF8.GetString(buf, 345, 155).TrimEnd('\0');
+                TypeFlag type = (TypeFlag)buf[156];
+                string prefix = UTF8.GetString(buf, 345, 155).TrimEnd('\0');
                 if (!string.IsNullOrWhiteSpace(prefix))
                 {
                     fileName = Path.Combine(prefix, fileName);
                 }
 
-                var output = Path.Combine(outDir, fileName);
+                string output = Path.Combine(outDir, fileName);
                 switch (type)
                 {
                     case TypeFlag.REGTYPE:
                     case TypeFlag.AREGTYPE:
                         if (!File.Exists(output) || mOverride)
                         {
-                            var mDir = Path.GetDirectoryName(output);
+                            string? mDir = Path.GetDirectoryName(output);
                             if (mDir != null && !Directory.Exists(mDir))
                             {
-                                Directory.CreateDirectory(mDir);
+                                Directory.CreateDirectory(mDir).Refresh();
                             }
 
                             using FileStream os = new(output, FileMode.Create, FileAccess.Write);
@@ -270,10 +279,10 @@ namespace CN.Lalaki.Archive
                         break;
 
                     case TypeFlag.DIRTYPE:
-                        var dir = Path.GetDirectoryName(output);
+                        string? dir = Path.GetDirectoryName(output);
                         if (dir != null && !Directory.Exists(dir))
                         {
-                            Directory.CreateDirectory(dir);
+                            Directory.CreateDirectory(dir).Refresh();
                         }
 
                         break;
@@ -281,9 +290,31 @@ namespace CN.Lalaki.Archive
                     case TypeFlag.XGLTYPE:
                         ts.Position += fileSize;
                         break;
+
+                    case TypeFlag.LNKTYPE:
+                        break;
+
+                    case TypeFlag.CHRTYPE:
+                        break;
+
+                    case TypeFlag.BLKTYPE:
+                        break;
+
+                    case TypeFlag.FIFOTYPE:
+                        break;
+
+                    case TypeFlag.CONTTYPE:
+                        break;
+
+                    case TypeFlag.XHDTYPE:
+                        break;
+
+                    default:
+                        ts.Position += fileSize;
+                        break;
                 }
 
-                ts.Position += BlockSize - ts.Position & 511L;
+                ts.Position += (BlockSize - ts.Position) & 511L;
             }
 
             ReleaseStreams(ts, fs);
