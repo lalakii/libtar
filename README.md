@@ -1,9 +1,12 @@
 # LibTar
+
 [![Available on NuGet https://www.nuget.org/packages?q=libtar](https://img.shields.io/nuget/v/libtar.svg?style=flat-square)](https://www.nuget.org/packages?q=libtar)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c2ff974d4ac4427ba036a011cad280c2)](https://app.codacy.com/gh/lalakii/libtar/dashboard)
 
 [libtar](https://www.nuget.org/packages?q=libtar) is a lightweight C# library for extracting TAR archives. It provides a simple API to archive or extract all files from TAR files.
 
 ## API
+
 ```cs
 Tar.ExtractAll(Stream src, string outputDirectory, bool overrideIfExisting); // Extract Tar or Tar.Gz
 
@@ -11,6 +14,7 @@ Tar.Archive(string inputDirectory, Stream dest); // Create Tar Archive.
 ```
 
 ## Demo
+
 ```cs
 using CN.Lalaki.Archive;
 using System.IO;
@@ -37,5 +41,7 @@ using (var targz = new GzipStream(..., CompressionMode.Decompress)) // tar.gz st
     Tar.ExtractAll(targz, "path\\of\\outputDir\\", true);
 }
 ```
+
 ## License
+
 [MIT](https://github.com/lalakii/libtar/blob/master/LICENSE)
