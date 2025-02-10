@@ -1,11 +1,11 @@
 # LibTar
 [![Available on NuGet https://www.nuget.org/packages?q=libtar](https://img.shields.io/nuget/v/libtar.svg?style=flat-square)](https://www.nuget.org/packages?q=libtar)
 
-[libtar](https://www.nuget.org/packages?q=libtar) is a lightweight C# library for extracting TAR archives. It provides a simple API to extract all files from TAR archives.
+[libtar](https://www.nuget.org/packages?q=libtar) is a lightweight C# library for extracting TAR archives. It provides a simple API to archive or extract all files from TAR files.
 
 ## API
 ```cs
-Tar.ExtractAll(Stream src, string outputDirectory, bool overrideIfExisting);
+Tar.ExtractAll(Stream src, string outputDirectory, bool overrideIfExisting); // Extract Tar or Tar.Gz
 
 Tar.Archive(string inputDirectory, Stream dest); // Create Tar Archive.
 ```

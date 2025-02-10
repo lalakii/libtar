@@ -166,9 +166,9 @@ namespace CN.Lalaki.Archive
 
             if (gz != null)
             {
+                ts = fs = File.Create(Path.Combine(Path.GetTempPath(), Path.ChangeExtension(Path.GetRandomFileName(), "tmp")));
                 using (gz)
                 {
-                    ts = fs = File.Create(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
                     gz.CopyTo(fs);
                     ts.Position = 0L;
                 }
@@ -215,7 +215,7 @@ namespace CN.Lalaki.Archive
                 if (cksum != vcksum)
                 {
                     ReleaseStreams(ts, fs);
-                    throw new IOException($"Checksum mismatch.(c0:{cksum} c1:{vcksum})");
+                    throw new IOException($"Checksum mismatch.(f:{fileName} c0:{cksum} c1:{vcksum})");
                 }
 
                 ts.Position += 12L;
@@ -265,7 +265,7 @@ namespace CN.Lalaki.Archive
                             if (total != fileSize)
                             {
                                 ReleaseStreams(ts, fs);
-                                throw new IOException("File length mismatch.");
+                                throw new IOException($"File length mismatch.(f:{fileName} L0:{fileSize} L1:{total})");
                             }
                         }
                         else
@@ -322,12 +322,13 @@ namespace CN.Lalaki.Archive
 
         private static void ReleaseStreams(Stream ts, Stream? fs)
         {
-            if (ts == fs)
+            using (ts)
             {
-                fs.SetLength(0L);
+                if (ts == fs)
+                {
+                    fs.SetLength(0L);
+                }
             }
-
-            ts.Dispose();
         }
     }
 }
