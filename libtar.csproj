@@ -1,51 +1,56 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <LangVersion>preview</LangVersion>
-    <TargetFrameworks>net462;net47;net471;net472;net48;net481;net8.0;net9.0</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <PackageId>libtar</PackageId>
-    <Version>1.2.6</Version>
-    <PackageVersion>$(Version)</PackageVersion>
-    <Authors>lalaki</Authors>
-    <Company>$(Authors)</Company>
-    <Description>libtar is a lightweight C# library for extracting TAR archives. It provides a simple API to archive or extract all files from TAR files.</Description>
-    <PackageReleaseNotes>v1.2.6 libtar - release.</PackageReleaseNotes>
-    <Copyright>Copyright (C) $([System.DateTime]::UtcNow.Year) lalaki.cn</Copyright>
-    <Product>$(PackageId)</Product>
-    <PackageIcon>Icon.png</PackageIcon>
-    <RepositoryUrl>https://github.com/lalakii/libtar</RepositoryUrl>
-    <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
-    <PackageTags>tar extract archive gzip windows decompress netframework</PackageTags>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <DebugType>none</DebugType>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
-    <WarningLevel>9999</WarningLevel>
-    <NoWin32Manifest>true</NoWin32Manifest>
-    <NoWarn>SYSLIB1054;IDE0130;SA1633;SA1200;SA1600;SA0001;CA1724;</NoWarn>
-    <AnalysisLevel>latest-all</AnalysisLevel>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <NuGetAuditMode>all</NuGetAuditMode>
-    <OutputType>Library</OutputType>
-    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <None Remove="nupkgs\**" />
-    <None Remove=".gitignore" />
-    <None Remove="gen_pkg.bat" />
-    <None Include="LICENSE" Pack="true" PackagePath="" />
-    <None Include="README.md" Pack="true" PackagePath="" />
-    <None Include="Icon.png" Pack="true" PackagePath="" />
-  </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="lalaki_sign &quot;$(TargetPath)&quot; &gt; NUL 2&gt;&amp;1 &amp;" />
-  </Target>
+	<PropertyGroup>
+		<AnalysisLevel>latest-all</AnalysisLevel>
+		<Authors>lalaki</Authors>
+		<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+		<Company>$(Authors)</Company>
+		<Copyright>Copyright (C) 2026 lalaki.cn</Copyright>
+		<DebugSymbols>False</DebugSymbols>
+		<DebugType>none</DebugType>
+		<Description>libtar is a lightweight C# library for extracting TAR archives. It provides a simple API to archive or extract all files from TAR files.</Description>
+		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+		<GenerateDocumentationFile>false</GenerateDocumentationFile>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<LangVersion>preview</LangVersion>
+		<NoWarn>SYSLIB1054;IDE0130;SA1633;SA1200;SA1600;SA0001;CA1724;</NoWarn>
+		<NoWin32Manifest>true</NoWin32Manifest>
+		<NuGetAuditMode>all</NuGetAuditMode>
+		<Nullable>enable</Nullable>
+		<Optimize>true</Optimize>
+		<OutputType>Library</OutputType>
+		<PackageIcon>Icon.png</PackageIcon>
+		<PackageId>libtar</PackageId>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReleaseNotes>v1.2.7 libtar - release.</PackageReleaseNotes>
+		<PackageTags>tar extract archive gzip windows decompress netframework</PackageTags>
+		<PackageVersion>$(Version)</PackageVersion>
+		<Product>$(PackageId)</Product>
+		<RepositoryUrl>https://github.com/lalakii/libtar</RepositoryUrl>
+		<RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+		<StripSymbols>True</StripSymbols>
+		<SubsystemVersion>6.00</SubsystemVersion>
+		<SuppressNETCoreSdkPreviewMessage>True</SuppressNETCoreSdkPreviewMessage>
+		<TargetFrameworks>net462;net47;net471;net472;net48;net481;net8.0;net9.0;net10.0</TargetFrameworks>
+		<TieredCompilation>False</TieredCompilation>
+		<UseSharedCompilation>False</UseSharedCompilation>
+		<Version>1.2.7</Version>
+		<WarningLevel>9999</WarningLevel>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		</PackageReference>
+		<None Remove="nupkgs\**" />
+		<None Remove=".gitignore" />
+		<None Remove="gen_pkg.bat" />
+		<None Include="LICENSE" Pack="true" PackagePath="" />
+		<None Include="README.md" Pack="true" PackagePath="" />
+		<None Include="Icon.png" Pack="true" PackagePath="" />
+	</ItemGroup>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="lalaki_sign &quot;$(TargetPath)&quot; &gt; NUL 2&gt;&amp;1 &amp;" />
+	</Target>
 </Project>
